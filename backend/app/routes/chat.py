@@ -79,6 +79,7 @@ async def chat_interaction(session_id: str, question: str, redis=Depends(redis.g
         )
         answer = response.choices[0].message.content
     elif model_provider == "gemini":
+        print("\n **************checking gemini\n")
         # Convert messages to Gemini-friendly prompt
         gemini_prompt = "\n".join(
             [f"{msg['role'].capitalize()}: {msg['content']}"
@@ -92,5 +93,7 @@ async def chat_interaction(session_id: str, question: str, redis=Depends(redis.g
     new_entry = json.dumps({"question": question, "answer": answer})
     await redis.rpush(f"{session_id}:history", new_entry)
     await redis.ltrim(f"{session_id}:history", -5, -1)  # Keep only last 5
+    
+    print(f"********* {answer}")
 
     return {"answer": answer}
